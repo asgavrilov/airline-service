@@ -7,6 +7,6 @@ import h.assignment.taskh.service.CrudService;
 
 import java.util.List;
 
-public interface AirlineService extends CrudService<AirlineDto, Integer> {
+public interface AirlineService extends CrudService<AirlineDto, String> {
     List<FlightDto> getAllFlightsByAirline(String airlineName);
 }

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @Slf4j
@@ -25,23 +26,23 @@ public class DestinationServiceImpl implements DestinationService {
     @Override
     public DestinationDto create(DestinationDto entity) {
         Destination destination = Destination.builder()
+                .airportId(entity.getAirportId().toLowerCase(Locale.ROOT))
+                .country(entity.getCountry())
                 .cityName(entity.getCityName())
                 .build();
         log.info(entity.getCityName());
         destinationRepository.save(destination);
-        return new DestinationDto(destination.getId(), destination.getCityName());
+        return new DestinationDto(destination.getAirportId(), destination.getCountry(), destination.getCityName());
     }
 
     @Override
-    public DestinationDto read(Integer id) {
-        if (!destinationRepository.existsById(id)) {
+    public DestinationDto read(String id) {
+        if (!destinationRepository.existsById(id.toLowerCase())) {
             log.error("There is no destination with id {} in DB", id);
-            throw new ResourceNotFoundException(String.format(
-                    "Destination wth id %d does not exist", id
-            ));
+            throw new ResourceNotFoundException(String.format("Destination wth id %s does not exist", id));
         }
-        Destination destination = destinationRepository.getDestination(id);
-        return new DestinationDto(destination.getId(), destination.getCityName());
+        Destination destination = destinationRepository.findById(id.toLowerCase()).orElse(null);
+        return new DestinationDto(destination.getAirportId(), destination.getCountry(), destination.getCityName());
     }
 
     @Override
@@ -50,17 +51,19 @@ public class DestinationServiceImpl implements DestinationService {
         return destinations
                 .stream()
                 .map(d -> new DestinationDto(
-                        d.getId(),
+                        d.getAirportId(),
+                        d.getCountry(),
                         d.getCityName()
                 )).toList();
     }
 
     @Override
-    public DestinationDto update(Integer id, DestinationDto newEntity) {
-        DestinationDto old = read(id);
+    public DestinationDto update(String id, DestinationDto newEntity) {
+        DestinationDto old = read(id.toLowerCase(Locale.ROOT));
         Destination newDest = Destination
                 .builder()
-                .id(old.getId())
+                .airportId(old.getAirportId())
+                .country(newEntity.getCountry())
                 .cityName(newEntity.getCityName())
                 .build();
         destinationRepository.save(newDest);
@@ -68,9 +71,9 @@ public class DestinationServiceImpl implements DestinationService {
     }
 
     @Override
-    public DestinationDto remove(Integer id) {
-        DestinationDto oldDto = read(id);
-        destinationRepository.deleteById(id);
+    public DestinationDto remove(String id) {
+        DestinationDto oldDto = read(id.toLowerCase(Locale.ROOT));
+        destinationRepository.deleteById(id.toLowerCase(Locale.ROOT));
         return oldDto;
     }
 

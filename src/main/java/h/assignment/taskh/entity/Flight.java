@@ -1,37 +1,34 @@
 package h.assignment.taskh.entity;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @Table(name = "flights")
 public class Flight {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
-    private Integer id;
-
-    @Column(name = "flight_number")
-    //TODO номер рейса
+    @Column(name = "flight_number_id", unique = true)
     private String flightNumber;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "destination_id")
+    @JoinColumn(name = "from_id")
+    @OneToOne
     private Destination destinationFrom;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "destination_to_id")
+    @JoinColumn(name = "to_id")
+    @OneToOne
     private Destination destinationTo;
 
+    @OneToOne
+    private ConnectionFlight connectionFlight;
 
-//    @ManyToOne()
-////    @JoinColumn(name = "airline_id")
-//    private Airline airline;
+    @ManyToOne()
+    @JoinColumn(name = "airline_id")
+    private Airline airline;
 
 }

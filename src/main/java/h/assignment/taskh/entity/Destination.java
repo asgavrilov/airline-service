@@ -14,10 +14,11 @@ import javax.persistence.*;
 @Table(name = "destinations")
 public class Destination {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
-    private Integer id;
+    @Column(name = "airport_id", unique = true)
+    private String airportId;
 
+    @Column(name = "country")
+    private String country;
 
     @Column(name = "city_name")
     private String cityName;

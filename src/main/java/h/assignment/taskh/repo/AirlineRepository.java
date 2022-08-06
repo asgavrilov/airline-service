@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AirlineRepository extends JpaRepository<Airline, Integer> {
+public interface AirlineRepository extends JpaRepository<Airline, String> {
     boolean existsAirlineByAirlineName(String name);
 
     Airline findByAirlineName(String name);

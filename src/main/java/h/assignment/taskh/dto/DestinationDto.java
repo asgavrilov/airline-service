@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class DestinationDto {
-    private int id;
+    private String airportId;
+    private String country;
     private String cityName;
 }
