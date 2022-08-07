@@ -1,5 +1,6 @@
 package h.assignment.taskh.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,6 +20,7 @@ public class Airline {
     private String airlineName;
 
     @OneToMany(cascade = CascadeType.ALL)
+    @JsonManagedReference
     @ToString.Exclude
     private List<Flight> flights;
 

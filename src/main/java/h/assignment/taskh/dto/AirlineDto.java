@@ -9,8 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AirlineDto {
-
     private String airlineName;
     private List<Flight> flights;
-
 }

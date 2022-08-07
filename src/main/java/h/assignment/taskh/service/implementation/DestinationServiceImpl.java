@@ -10,18 +10,17 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Locale;
 
 @Service
+@Transactional
 @Slf4j
 public class DestinationServiceImpl implements DestinationService {
 
     @Autowired
     DestinationRepository destinationRepository;
-
-    @Autowired
-    ModelMapper modelMapper;
 
     @Override
     public DestinationDto create(DestinationDto entity) {
@@ -37,11 +36,14 @@ public class DestinationServiceImpl implements DestinationService {
 
     @Override
     public DestinationDto read(String id) {
-        if (!destinationRepository.existsById(id.toLowerCase())) {
+        if (!destinationRepository.existsById(id.toLowerCase(Locale.ROOT))) {
             log.error("There is no destination with id {} in DB", id);
             throw new ResourceNotFoundException(String.format("Destination wth id %s does not exist", id));
         }
         Destination destination = destinationRepository.findById(id.toLowerCase()).orElse(null);
+        if (destination == null) {
+            throw new ResourceNotFoundException("no destination is found");
+        }
         return new DestinationDto(destination.getAirportId(), destination.getCountry(), destination.getCityName());
     }
 
@@ -62,7 +64,7 @@ public class DestinationServiceImpl implements DestinationService {
         DestinationDto old = read(id.toLowerCase(Locale.ROOT));
         Destination newDest = Destination
                 .builder()
-                .airportId(old.getAirportId())
+                .airportId(old.getAirportId().toLowerCase(Locale.ROOT))
                 .country(newEntity.getCountry())
                 .cityName(newEntity.getCityName())
                 .build();
@@ -76,9 +78,4 @@ public class DestinationServiceImpl implements DestinationService {
         destinationRepository.deleteById(id.toLowerCase(Locale.ROOT));
         return oldDto;
     }
-
-    private Destination convertToEntity(DestinationDto entity) {
-        return modelMapper.map(entity, Destination.class);
-    }
-
 }

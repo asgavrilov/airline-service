@@ -4,6 +4,7 @@ import h.assignment.taskh.dto.AirlineDto;
 import h.assignment.taskh.dto.FlightDto;
 import h.assignment.taskh.entity.Airline;
 import h.assignment.taskh.entity.Flight;
+import h.assignment.taskh.exceptions.ResourceNotFoundException;
 import h.assignment.taskh.exceptions.WrongInputDataException;
 import h.assignment.taskh.repo.AirlineRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -13,13 +14,12 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @Slf4j
 public class AirlineServiceImpl implements AirlineService {
 
-    @Autowired
-    private ModelMapper modelMapper;
     @Autowired
     private AirlineRepository airlineRepository;
 
@@ -30,7 +30,7 @@ public class AirlineServiceImpl implements AirlineService {
             log.error("Can not create airline with airline name {}. " +
                     "Airline with this name already exists", entity.getAirlineName());
             throw new WrongInputDataException(String.format(
-                    "Can not create airline with id %d." +
+                    "Can not create airline with id %s." +
                             "airline with this id already exists", entity.getAirlineName()
             ));
         }
@@ -47,7 +47,10 @@ public class AirlineServiceImpl implements AirlineService {
 
     @Override
     public AirlineDto read(String id) {
-        Airline res = airlineRepository.findById(id).orElse(null);
+        Airline res = airlineRepository.findById(id.toLowerCase(Locale.ROOT)).orElse(null);
+        if (res == null) {
+            throw new ResourceNotFoundException("no airline is found");
+        }
         return new AirlineDto(res.getAirlineName(), res.getFlights());
     }
 
@@ -64,10 +67,13 @@ public class AirlineServiceImpl implements AirlineService {
 
     @Override
     public AirlineDto update(String id, AirlineDto newEntity) {
-        AirlineDto old = read(id);
+        AirlineDto old = read(id.toLowerCase(Locale.ROOT));
+        if (old == null) {
+            throw new ResourceNotFoundException("no airline is found");
+        }
         Airline newAirline = Airline
                 .builder()
-                .airlineName(old.getAirlineName())
+                .airlineName(old.getAirlineName().toLowerCase(Locale.ROOT))
                 .flights(newEntity.getFlights())
                 .build();
         airlineRepository.save(newAirline);
@@ -86,15 +92,10 @@ public class AirlineServiceImpl implements AirlineService {
         Airline airline = airlineRepository.findByAirlineName(airlineName.toLowerCase());
         List<Flight> flights = airline.getFlights();
         return flights.stream().map(f -> new FlightDto(
-                f.getFlightNumber(),
-                f.getDestinationFrom(),
-                f.getDestinationTo(),
-                f.getConnectionFlight()))
+                        f.getFlightNumber(),
+                        f.getDestinationFrom(),
+                        f.getDestinationTo(),
+                        f.getConnectionFlight()))
                 .toList();
-    }
-
-
-    private Airline convertToEntity(AirlineDto entity) {
-        return modelMapper.map(entity, Airline.class);
     }
 }

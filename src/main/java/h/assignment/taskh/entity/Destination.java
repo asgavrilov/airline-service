@@ -3,10 +3,10 @@ package h.assignment.taskh.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Locale;
 
 @Entity
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,4 +23,15 @@ public class Destination {
     @Column(name = "city_name")
     private String cityName;
 
+    public void setAirportId(String airportId) {
+        this.airportId = airportId.toLowerCase(Locale.ROOT);
+    }
+
+    public void setCountry(String country) {
+        this.country = country.toLowerCase(Locale.ROOT);
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName.toLowerCase(Locale.ROOT);
+    }
 }
