@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Locale;
 
 import static h.assignment.taskh.constants.Constants.DESTINATION_BASE;
 
@@ -26,30 +27,32 @@ public class DestinationController {
     }
 
     @GetMapping("/{id}")
-    DestinationDto getDestination(@PathVariable("id") int id) {
+    DestinationDto getDestination(@PathVariable("id") String id) {
+        log.info("Getting destination with {} id", id);
         return destinationService.read(id);
     }
 
     @GetMapping
     List<DestinationDto> getAllDestinations() {
+        log.info("Getting all destinations");
         return destinationService.getAll();
     }
 
     @DeleteMapping("/{id}")
-    DestinationDto deleteDestination(@PathVariable("id") int id) {
+    DestinationDto deleteDestination(@PathVariable("id") String id) {
         DestinationDto removedDto = destinationService.remove(id);
         log.info("Destination with id {} has been removed", id);
         return removedDto;
     }
 
     @PutMapping("/{id}")
-    DestinationDto updateDestination(@PathVariable("id") int id, @RequestBody DestinationDto newDestination) {
-        if (newDestination.getId() != id) {
-            log.error("Mismatching id: value id parameter is {} and new destination id is {}", id, newDestination.getId());
+    DestinationDto updateDestination(@PathVariable("id") String id,
+                                     @RequestBody DestinationDto newDestination) {
+        if (!newDestination.getAirportId().equals(id.toLowerCase(Locale.ROOT))) {
+            log.error("Mismatching id: value id parameter is {} and new destination id is {}", id, newDestination.getAirportId());
             throw new WrongInputDataException(String.format(
-                    "Mismatching id: value id parameter is %d and new destination id is %d",
-                    id, newDestination.getId()
-            ));
+                    "Mismatching id: value id parameter is %s and new destination id is %s",
+                    id, newDestination.getAirportId()));
         }
         DestinationDto old = destinationService.update(id, newDestination);
         log.info("Destination with id {} updated", id);

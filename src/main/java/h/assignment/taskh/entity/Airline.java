@@ -1,5 +1,6 @@
 package h.assignment.taskh.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,20 +11,16 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
 @Table(name = "airlines")
-@NoArgsConstructor
 public class Airline {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    private Integer id;
-
-    @Column(name = "airline_name", unique = true)
+    @Column(name = "id", unique = true)
     private String airlineName;
 
     @OneToMany(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "airline_id")
+    @JsonManagedReference
     @ToString.Exclude
     private List<Flight> flights;
 
