@@ -8,7 +8,6 @@ import h.assignment.taskh.exceptions.ResourceNotFoundException;
 import h.assignment.taskh.exceptions.WrongInputDataException;
 import h.assignment.taskh.repo.AirlineRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -89,13 +88,16 @@ public class AirlineServiceImpl implements AirlineService {
 
     @Override
     public List<FlightDto> getAllFlightsByAirline(String airlineName) {
-        Airline airline = airlineRepository.findByAirlineName(airlineName.toLowerCase());
+        Airline airline = airlineRepository.findAirlineByAirlineName(airlineName.toLowerCase());
+        if (airline == null) {
+            throw new ResourceNotFoundException(String.format("airline with '%s' name is not found", airlineName));
+        }
         List<Flight> flights = airline.getFlights();
         return flights.stream().map(f -> new FlightDto(
                         f.getFlightNumber(),
                         f.getDestinationFrom(),
                         f.getDestinationTo(),
-                        f.getConnectionFlight()))
+                        f.getConnectionFlights()))
                 .toList();
     }
 }

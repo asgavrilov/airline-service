@@ -28,11 +28,13 @@ public class DestinationController {
 
     @GetMapping("/{id}")
     DestinationDto getDestination(@PathVariable("id") String id) {
+        log.info("Getting destination with {} id", id);
         return destinationService.read(id);
     }
 
     @GetMapping
     List<DestinationDto> getAllDestinations() {
+        log.info("Getting all destinations");
         return destinationService.getAll();
     }
 
@@ -44,7 +46,8 @@ public class DestinationController {
     }
 
     @PutMapping("/{id}")
-    DestinationDto updateDestination(@PathVariable("id") String id, @RequestBody DestinationDto newDestination) {
+    DestinationDto updateDestination(@PathVariable("id") String id,
+                                     @RequestBody DestinationDto newDestination) {
         if (!newDestination.getAirportId().equals(id.toLowerCase(Locale.ROOT))) {
             log.error("Mismatching id: value id parameter is {} and new destination id is {}", id, newDestination.getAirportId());
             throw new WrongInputDataException(String.format(

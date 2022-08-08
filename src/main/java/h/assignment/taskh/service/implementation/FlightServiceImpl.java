@@ -6,7 +6,6 @@ import h.assignment.taskh.repo.FlightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -25,31 +24,31 @@ public class FlightServiceImpl implements FlightService {
                         f.getFlightNumber(),
                         f.getDestinationFrom(),
                         f.getDestinationTo(),
-                        f.getConnectionFlight())).toList();
+                        f.getConnectionFlights())).toList();
     }
 
     @Override
     public FlightDto create(FlightDto entity) {
-        return new FlightDto();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public FlightDto read(String id) {
-        return new FlightDto();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<FlightDto> getAll() {
-        return new ArrayList<>();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public FlightDto update(String id, FlightDto newEntity) {
-        return new FlightDto();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public FlightDto remove(String id) {
-        return new FlightDto();
+        throw new UnsupportedOperationException();
     }
 }

@@ -15,7 +15,6 @@ import java.util.Locale;
 import static h.assignment.taskh.constants.Constants.*;
 
 
-
 @RestController
 @Slf4j
 @RequestMapping(AIRLINES_BASE)
@@ -35,6 +34,7 @@ public class AirlineController {
 
     @GetMapping("/{airlineId}")
     AirlineDto getAirlineByName(@PathVariable("airlineId") String airlineId) {
+        log.info("Getting airline by name: {} ", airlineId);
         return airlineService.read(airlineId.toLowerCase(Locale.ROOT));
     }
 
@@ -46,12 +46,14 @@ public class AirlineController {
 
     @GetMapping
     List<AirlineDto> getAllAirlines() {
+        log.info("Getting all airlines");
         return airlineService.getAll();
     }
 
     @GetMapping(value = "flights/find/")
     List<FlightDto> getFlightsByDestinations(@RequestParam("from") String from,
                                              @RequestParam("to") String to) {
+        log.info("Getting flight(s) from {} airport to {} destination", from, to);
         return flightService.getFlightsByDest(from, to);
     }
 
@@ -62,7 +64,8 @@ public class AirlineController {
     }
 
     @PutMapping("/{airlineId}")
-    AirlineDto updateAirline(@PathVariable("airlineId") String airlineId, @RequestBody AirlineDto newAirlineData) {
+    AirlineDto updateAirline(@PathVariable("airlineId") String airlineId,
+                             @RequestBody AirlineDto newAirlineData) {
         if (!newAirlineData.getAirlineName().equalsIgnoreCase(airlineId.toLowerCase(Locale.ROOT))) {
             log.error("Mismatching id: value id parameter is {} and new destination id is {}",
                     airlineId, newAirlineData.getAirlineName().toLowerCase(Locale.ROOT));

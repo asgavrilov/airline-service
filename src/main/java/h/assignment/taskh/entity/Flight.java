@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Table(name = "flights")
 public class Flight {
     @Id
@@ -25,8 +25,8 @@ public class Flight {
     @OneToOne
     private Destination destinationTo;
 
-    @OneToOne
-    private ConnectionFlight connectionFlight;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Flight> connectionFlights;
 
     @ManyToOne()
     @JoinColumn(name = "airline_id")
