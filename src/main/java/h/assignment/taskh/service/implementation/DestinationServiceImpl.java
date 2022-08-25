@@ -5,9 +5,8 @@ import h.assignment.taskh.entity.Destination;
 import h.assignment.taskh.exceptions.ResourceNotFoundException;
 import h.assignment.taskh.repo.DestinationRepository;
 import h.assignment.taskh.service.DestinationService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -16,11 +15,11 @@ import java.util.Locale;
 
 @Service
 @Transactional
+@AllArgsConstructor
 @Slf4j
 public class DestinationServiceImpl implements DestinationService {
 
-    @Autowired
-    DestinationRepository destinationRepository;
+    private DestinationRepository destinationRepository;
 
     @Override
     public DestinationDto create(DestinationDto entity) {
@@ -29,9 +28,9 @@ public class DestinationServiceImpl implements DestinationService {
                 .country(entity.getCountry())
                 .cityName(entity.getCityName())
                 .build();
-        log.info(entity.getCityName());
-        destinationRepository.save(destination);
-        return new DestinationDto(destination.getAirportId(), destination.getCountry(), destination.getCityName());
+        var res = destinationRepository.saveAndFlush(destination);
+        log.info("Destination with {} id has been created", res.getCityName());
+        return new DestinationDto(res.getAirportId(), res.getCountry(), res.getCityName());
     }
 
     @Override
@@ -44,12 +43,14 @@ public class DestinationServiceImpl implements DestinationService {
         if (destination == null) {
             throw new ResourceNotFoundException("no destination is found");
         }
+        log.info("getting info for destination with {} id", id);
         return new DestinationDto(destination.getAirportId(), destination.getCountry(), destination.getCityName());
     }
 
     @Override
     public List<DestinationDto> getAll() {
         List<Destination> destinations = destinationRepository.findAll();
+        log.info("getting info for all destinations");
         return destinations
                 .stream()
                 .map(d -> new DestinationDto(
@@ -69,6 +70,7 @@ public class DestinationServiceImpl implements DestinationService {
                 .cityName(newEntity.getCityName())
                 .build();
         destinationRepository.save(newDest);
+        log.info("destination with {} id has been updated", id);
         return old;
     }
 
@@ -76,6 +78,7 @@ public class DestinationServiceImpl implements DestinationService {
     public DestinationDto remove(String id) {
         DestinationDto oldDto = read(id.toLowerCase(Locale.ROOT));
         destinationRepository.deleteById(id.toLowerCase(Locale.ROOT));
+        log.info("destination with {} id has been removed", id);
         return oldDto;
     }
 }

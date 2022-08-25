@@ -1,10 +1,10 @@
 package h.assignment.taskh.constants;
 
-public final class Constants {
-    private Constants() {
-    }
+public interface Constants {
+    String AIRLINES_BASE = "api/v1/airlines/";
+    String DESTINATION_BASE = "api/v1/destinations/";
+    String FLIGHTS = "flights/";
+    String FIND_FLIGHTS = "flights/find/";
 
-    public static final String AIRLINES_BASE = "api/v1/airlines/";
-    public static final String DESTINATION_BASE = "api/v1/destinations/";
-    public static final String FLIGHTS = "flights/";
+    String FIND_FLIGHTS_DIRECTIONS = "flights/directions/find/";
 }

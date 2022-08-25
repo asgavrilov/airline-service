@@ -1,8 +1,7 @@
-package h.assignment.taskh.service.implementation;
+package h.assignment.taskh.service;
 
 
 import h.assignment.taskh.dto.FlightDto;
-import h.assignment.taskh.service.CrudService;
 import java.util.List;
 
 public interface FlightService extends CrudService<FlightDto, String> {

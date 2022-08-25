@@ -1,14 +1,16 @@
 package h.assignment.taskh.dto;
 
-import h.assignment.taskh.entity.Flight;
 import lombok.*;
 
-import java.util.List;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class AirlineDto {
+    private Integer id;
+
+    @NotBlank(message = "airline name cannot be empty")
     private String airlineName;
-    private List<Flight> flights;
 }

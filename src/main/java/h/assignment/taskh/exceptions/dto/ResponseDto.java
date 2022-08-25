@@ -1,17 +1,18 @@
 package h.assignment.taskh.exceptions.dto;
 
-public class ResponseDto {
+import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@NoArgsConstructor
+@RequiredArgsConstructor
+@AllArgsConstructor
+@Data
+public class ResponseDto {
+    private List<Violation> violations = new ArrayList<>();
+    private String fieldName;
+    @NonNull
     private String message;
 
-    public ResponseDto() {
-    }
-
-    public ResponseDto(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 }

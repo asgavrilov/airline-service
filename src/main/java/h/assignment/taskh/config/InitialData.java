@@ -6,20 +6,21 @@ import h.assignment.taskh.entity.Flight;
 import h.assignment.taskh.repo.AirlineRepository;
 import h.assignment.taskh.repo.DestinationRepository;
 import h.assignment.taskh.repo.FlightRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Component
+@AllArgsConstructor
 public class InitialData {
-    @Autowired
-    private AirlineRepository airlineRepository;
-    @Autowired
-    private DestinationRepository destinationRepository;
-    @Autowired
-    private FlightRepository flightRepository;
+
+    private final AirlineRepository airlineRepository;
+
+    private final DestinationRepository destinationRepository;
+
+    private final FlightRepository flightRepository;
 
     @PostConstruct
     void init() {
@@ -36,8 +37,8 @@ public class InitialData {
                 destination4,
                 destination5));
 
-        Airline aeroflot = new Airline("aeroflot", null);
-        Airline lufthansa = new Airline("lufthansa", null);
+        Airline aeroflot = new Airline("aeroflot");
+        Airline lufthansa = new Airline("lufthansa");
 
         Flight su111 = new Flight(
                 "su111",
@@ -71,9 +72,6 @@ public class InitialData {
                 connectionFlight,
                 lufthansa
         );
-
-        aeroflot.setFlights(List.of(su111, su222));
-        lufthansa.setFlights(List.of(lh1466, lh420));
 
         airlineRepository.saveAll(List.of(aeroflot, lufthansa));
         flightRepository.saveAll(List.of(su111, su222, lh1466));
