@@ -13,8 +13,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import static h.assignment.taskh.constants.Constants.*;
 
@@ -33,26 +35,18 @@ public class AirlineController {
     ResponseEntity<AirlineDto> createAirline(@RequestBody @Valid AirlineDto airlineDto) {
         log.info("Attempt to create Airline with name {}", airlineDto.getAirlineName());
         AirlineDto res = airlineService.create(airlineDto);
-        if (res != null) {
-            return new ResponseEntity<>(res, HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return res != null ? new ResponseEntity<>(res, HttpStatus.CREATED) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value = FLIGHTS)
     ResponseEntity<FlightDto> createFlight(@RequestBody @Valid FlightDto flightDto) {
         log.info("Attempt to create Flight with flightNumber {}", flightDto.getFlightNumber());
         FlightDto res = flightService.create(flightDto);
-        if (res != null) {
-            return new ResponseEntity<>(res, HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return res != null ? new ResponseEntity<>(res, HttpStatus.CREATED) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/{airlineId}")
-    ResponseEntity<AirlineDto> getAirlineByName(@PathVariable("airlineId") Integer airlineId) {
+    ResponseEntity<AirlineDto> getAirlineById(@PathVariable("airlineId") Integer airlineId) {
         log.info("Attempt to get airline by name: {} ", airlineId);
         return ResponseEntity.ok(airlineService.read(airlineId));
     }
@@ -61,22 +55,14 @@ public class AirlineController {
     ResponseEntity<List<FlightDto>> getAllFlightsByAirline(@RequestParam("airlineName") @Valid String airlineName) {
         log.info("Attempt to get flights with airline name = {}", airlineName);
         List<FlightDto> res = airlineService.getAllFlightsByAirline(airlineName.toLowerCase(Locale.ROOT));
-        if (res != null) {
-            return ResponseEntity.ok(res);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return ResponseEntity.ok(Objects.requireNonNullElseGet(res, ArrayList::new));
     }
 
     @GetMapping
     ResponseEntity<List<AirlineDto>> getAllAirlines() {
         log.info("Attempt to get all airlines");
         List<AirlineDto> res = airlineService.getAll();
-        if (res != null) {
-            return ResponseEntity.ok(res);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return res != null ? ResponseEntity.ok(res) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping(value = FIND_FLIGHTS_DIRECTIONS)
@@ -87,11 +73,7 @@ public class AirlineController {
             return ResponseEntity.badRequest().body("missing 'from' or 'to' parameter");
         } else {
             List<FlightDto> res = flightService.getFlightsByDest(from, to);
-            if (res != null) {
-                return ResponseEntity.ok(res);
-            } else {
-                return ResponseEntity.badRequest().body("no data");
-            }
+            return res != null ? ResponseEntity.ok(res) : ResponseEntity.badRequest().body("no data");
         }
     }
 
@@ -99,19 +81,13 @@ public class AirlineController {
     ResponseEntity<AirlineDto> removeAirline(@PathVariable Integer airlineId) {
         log.info("Attempt to remove the airline with id = {} ", airlineId);
         AirlineDto res = airlineService.remove(airlineId);
-        if (res != null) {
-            return ResponseEntity.ok(res);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return res != null ? ResponseEntity.ok(res) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/{airlineId}")
     ResponseEntity<AirlineDto> updateAirline(@PathVariable("airlineId") Integer airlineId,
                                              @RequestBody @Valid AirlineDto newAirlineData) {
         if (!newAirlineData.getId().equals(airlineId)) {
-            log.error("Mismatching id: value id parameter is {} and new airline id is {}",
-                    airlineId, newAirlineData.getAirlineName().toLowerCase(Locale.ROOT));
             throw new WrongInputDataException(String.format(
                     "Mismatching id: value id parameter is %s and new airline id is %s",
                     airlineId, newAirlineData.getAirlineName().toLowerCase(Locale.ROOT)));
@@ -129,8 +105,6 @@ public class AirlineController {
     ResponseEntity<FlightDto> updateFlight(@PathVariable("flightNumberId") String flightNumberId,
                                            @RequestBody @Valid FlightDto newFlightDto) {
         if (!newFlightDto.getFlightNumber().equals(flightNumberId)) {
-            log.error("Mismatching id: value id parameter is {} and new flight id is {}",
-                    flightNumberId, newFlightDto.getFlightNumber().toLowerCase(Locale.ROOT));
             throw new WrongInputDataException(String.format(
                     "Mismatching id: value id parameter is %s and new flight id is %s",
                     flightNumberId, newFlightDto.getFlightNumber().toLowerCase(Locale.ROOT)));
@@ -145,14 +119,10 @@ public class AirlineController {
     }
 
     @GetMapping(value = FLIGHTS + "{flightId}")
-    ResponseEntity<FlightDto> getFlightByAirlineId(@PathVariable("flightId") @Valid String flightNumberId) {
+    ResponseEntity<FlightDto> getFlightByFlightNumberId(@PathVariable("flightId") String flightNumberId) {
         log.info("Attempt to get flights with airline name = {}", flightNumberId);
         FlightDto res = flightService.read(flightNumberId);
-        if (res != null) {
-            return ResponseEntity.ok(res);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return res != null ? ResponseEntity.ok(res) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping(value = FIND_FLIGHTS)
@@ -162,7 +132,8 @@ public class AirlineController {
         if (res != null) {
             return ResponseEntity.ok(res);
         } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            List<FlightDto> emptyRes = new ArrayList<>();
+            return ResponseEntity.ok(emptyRes);
         }
     }
 }

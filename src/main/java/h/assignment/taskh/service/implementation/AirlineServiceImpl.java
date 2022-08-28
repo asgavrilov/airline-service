@@ -1,8 +1,11 @@
 package h.assignment.taskh.service.implementation;
 
 import h.assignment.taskh.dto.AirlineDto;
+
 import h.assignment.taskh.dto.FlightDto;
+import h.assignment.taskh.dto.helper.DtoHelper;
 import h.assignment.taskh.entity.Airline;
+
 import h.assignment.taskh.entity.Flight;
 import h.assignment.taskh.exceptions.ResourceNotFoundException;
 import h.assignment.taskh.exceptions.WrongInputDataException;
@@ -14,8 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+
 import java.util.List;
 import java.util.Locale;
+
+import static h.assignment.taskh.dto.helper.DtoHelper.*;
 
 @Service
 @Slf4j
@@ -30,14 +36,15 @@ public class AirlineServiceImpl implements AirlineService {
     @Override
     public AirlineDto create(AirlineDto entity) {
         if (airlineRepository.existsAirlineByAirlineName(entity.getAirlineName())) {
-            log.error("Can not create airline with airline name {}. " +
-                    "Airline with this name already exists", entity.getAirlineName());
             throw new WrongInputDataException(String.format(
                     "Can not create airline with id %s." +
-                            "airline with this id already exists", entity.getAirlineName()
-            ));
+                            "airline with this id already exists", entity.getAirlineName()));
         }
-        Airline airline = Airline.builder().airlineName(entity.getAirlineName().toLowerCase())
+        Airline airline = Airline.builder().
+                airlineName(entity.getAirlineName().toLowerCase())
+                .address(entity.getAddress())
+                .email(entity.getEmail())
+                .managerName(entity.getManagerName())
                 .build();
         var res = airlineRepository.saveAndFlush(airline);
         log.info("airline with id {} and name {} has been created", res.getId(), res.getAirlineName());
@@ -61,7 +68,7 @@ public class AirlineServiceImpl implements AirlineService {
         log.info("returning all airlines");
         return airlines
                 .stream()
-                .map(this::entityToDto).toList();
+                .map(DtoHelper::entityToDto).toList();
     }
 
     @Override
@@ -98,19 +105,11 @@ public class AirlineServiceImpl implements AirlineService {
         log.info("returning flights by airlineName {}", airlineName);
         return flights.stream().map(f -> new FlightDto(
                         f.getFlightNumber(),
-                        f.getDestinationFrom(),
-                        f.getDestinationTo(),
-                        f.getConnectionFlights(),
-                        f.getAirline()
+                        entityToDto(f.getDestinationFrom()),
+                        entityToDto(f.getDestinationTo()),
+                        f.getConnectionFlights().stream().map(DtoHelper::entityToDto).toList(),
+                        entityToDto(f.getAirline())
                 ))
                 .toList();
-    }
-
-
-    private AirlineDto entityToDto(Airline airline) {
-        return AirlineDto.builder()
-                .id(airline.getId())
-                .airlineName(airline.getAirlineName())
-                .build();
     }
 }

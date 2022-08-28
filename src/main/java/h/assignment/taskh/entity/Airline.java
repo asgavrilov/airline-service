@@ -22,5 +22,11 @@ public class Airline {
     @NonNull
     @Column(name = "airline_name")
     private String airlineName;
+    @NonNull
+    private String address;
+    @NonNull
+    private String email;
+    @NonNull
+    private String managerName;
 
 }

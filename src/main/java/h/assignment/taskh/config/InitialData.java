@@ -37,8 +37,8 @@ public class InitialData {
                 destination4,
                 destination5));
 
-        Airline aeroflot = new Airline("aeroflot");
-        Airline lufthansa = new Airline("lufthansa");
+        Airline aeroflot = new Airline("aeroflot", "Russia,Moscow, Pushkin street 1", "support@aeroflot.ru","Dyagilev");
+        Airline lufthansa = new Airline("lufthansa", "Germany, Frankfurt, Scholz 1","support@lufthansa.com", "Basoski");
 
         Flight su111 = new Flight(
                 "su111",

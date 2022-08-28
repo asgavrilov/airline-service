@@ -5,6 +5,8 @@ import h.assignment.taskh.exceptions.WrongInputDataException;
 import h.assignment.taskh.service.DestinationService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,40 +26,46 @@ public class DestinationController {
     private final DestinationService destinationService;
 
     @PostMapping
-    DestinationDto createDestination(@RequestBody @Valid DestinationDto destinationDto) {
+    ResponseEntity<DestinationDto> createDestination(@RequestBody @Valid DestinationDto destinationDto) {
         log.info("Attempt to create Destination with name {}", destinationDto.getCityName());
-        return destinationService.create(destinationDto);
+        DestinationDto res = destinationService.create(destinationDto);
+        return res != null ? new ResponseEntity<>(res, HttpStatus.CREATED) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/{id}")
-    DestinationDto getDestination(@PathVariable("id") @Valid String id) {
+    ResponseEntity<DestinationDto> getDestination(@PathVariable("id") String id) {
         log.info("Attempt to get destination with {} id", id);
-        return destinationService.read(id);
+        return ResponseEntity.ok(destinationService.read(id));
     }
 
     @GetMapping
-    List<DestinationDto> getAllDestinations() {
+    ResponseEntity<List<DestinationDto>> getAllDestinations() {
         log.info("Attempt to get all destinations");
-        return destinationService.getAll();
+        List<DestinationDto> res = destinationService.getAll();
+        return res != null ? ResponseEntity.ok(res) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/{id}")
-    DestinationDto deleteDestination(@PathVariable("id") @Valid String id) {
-        DestinationDto removedDto = destinationService.remove(id);
+    ResponseEntity<DestinationDto> deleteDestination(@PathVariable("id") String id) {
         log.info("Attempt to remove Destination with id {}", id);
-        return removedDto;
+        DestinationDto removedDto = destinationService.remove(id);
+        return removedDto != null ? ResponseEntity.ok(removedDto) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/{id}")
-    DestinationDto updateDestination(@PathVariable("id") String id,
-                                     @RequestBody @Valid DestinationDto newDestination) {
+    ResponseEntity<DestinationDto> updateDestination(@PathVariable("id") String id,
+                                                     @RequestBody @Valid DestinationDto newDestination) {
         if (!newDestination.getAirportId().equals(id.toLowerCase(Locale.ROOT))) {
-            log.error("Mismatching id: value id parameter is {} and new destination id is {}", id, newDestination.getAirportId());
             throw new WrongInputDataException(String.format(
                     "Mismatching id: value id parameter is %s and new destination id is %s",
                     id, newDestination.getAirportId()));
         }
-        log.info("Attempt to update Destination with id {}", id);
-        return destinationService.update(id, newDestination);
+        if (newDestination != null) {
+            log.info("Attempt to update Destination with id {}", id);
+            DestinationDto old = destinationService.update(id, newDestination);
+            return ResponseEntity.ok(old);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }

@@ -1,18 +1,28 @@
 package h.assignment.taskh.service.implementation;
 
 
+import h.assignment.taskh.dto.CreateFlightDto;
 import h.assignment.taskh.dto.FlightDto;
+import h.assignment.taskh.dto.helper.DtoHelper;
+import h.assignment.taskh.entity.Airline;
+import h.assignment.taskh.entity.Destination;
 import h.assignment.taskh.entity.Flight;
 import h.assignment.taskh.exceptions.ResourceNotFoundException;
 import h.assignment.taskh.exceptions.WrongInputDataException;
+import h.assignment.taskh.repo.AirlineRepository;
+import h.assignment.taskh.repo.DestinationRepository;
 import h.assignment.taskh.repo.FlightRepository;
 import h.assignment.taskh.service.FlightService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Locale;
+
+import static h.assignment.taskh.dto.helper.DtoHelper.dtoToEntity;
+import static h.assignment.taskh.dto.helper.DtoHelper.entityToDto;
 
 @Service
 @Slf4j
@@ -21,42 +31,46 @@ import java.util.Locale;
 public class FlightServiceImpl implements FlightService {
 
     private FlightRepository flightRepository;
+    private DestinationRepository destinationRepository;
+    private AirlineRepository airlineRepository;
 
     @Override
     @Transactional
     public List<FlightDto> getFlightsByDest(String from, String to) {
-        List<Flight> res = flightRepository.findFlightByDestinationFromAndDestinationTo(from.toLowerCase(Locale.ROOT),
+        List<Flight> res = flightRepository.findFlightByDestinationFromAndDestinationTo(
+                from.toLowerCase(Locale.ROOT),
                 to.toLowerCase(Locale.ROOT));
-        return res.stream().map(
-                f -> new FlightDto(
-                        f.getFlightNumber(),
-                        f.getDestinationFrom(),
-                        f.getDestinationTo(),
-                        f.getConnectionFlights(),
-                        f.getAirline())).toList();
+        return res.stream().map(DtoHelper::entityToDto).toList();
     }
 
     @Override
-    public FlightDto create(FlightDto entity) {
+    public FlightDto create(CreateFlightDto entity) {
         if (flightRepository.existsFlightByFlightNumber(entity.getFlightNumber())) {
-            log.error("Can not create airline with airline name {}. " +
-                    "Airline with this name already exists", entity.getFlightNumber());
             throw new WrongInputDataException(String.format(
                     "Can not create airline with id %s." +
                             "airline with this id already exists", entity.getFlightNumber()
             ));
         }
+        Destination destinationFrom = destinationRepository.findById(entity.getDestinationFrom()).orElse(null);
+        Destination destinationTo = destinationRepository.findById(entity.getDestinationFrom()).orElse(null);
+        List<Flight> connFlights = flightRepository.findAllById(entity.getConnectionFlights());
+        Airline airline = airlineRepository.findAirlineByAirlineName(entity.getAirlineId());
         Flight flight = Flight.builder().
-        flightNumber(entity.getFlightNumber())
-                .destinationFrom(entity.getDestinationFrom())
-                .destinationTo(entity.getDestinationTo())
-                .connectionFlights(entity.getConnectionFlights())
-                .airline(entity.getAirline())
+                flightNumber(entity.getFlightNumber())
+                .destinationFrom(destinationFrom)
+                .destinationTo(destinationTo)
+                .connectionFlights(connFlights)
+                .airline(airline)
                 .build();
 
         var res = flightRepository.saveAndFlush(flight);
         log.info("airline with id {} has been created", flight.getFlightNumber());
         return entityToDto(res);
+    }
+
+    @Override
+    public FlightDto create(FlightDto entity) {
+        return null;
     }
 
     @Override
@@ -73,16 +87,7 @@ public class FlightServiceImpl implements FlightService {
     public List<FlightDto> getAll() {
         List<Flight> flights = flightRepository.findAll();
         log.info("returning all flights");
-        return flights.stream().map(this::entityToDto).toList();
-    }
-
-    private FlightDto entityToDto(Flight flight) {
-        return FlightDto.builder()
-                .flightNumber(flight.getFlightNumber())
-                .destinationFrom(flight.getDestinationFrom())
-                .destinationTo(flight.getDestinationTo())
-                .connectionFlights(flight.getConnectionFlights())
-                .airline(flight.getAirline()).build();
+        return flights.stream().map(DtoHelper::entityToDto).toList();
     }
 
     @Override
@@ -94,10 +99,10 @@ public class FlightServiceImpl implements FlightService {
         Flight newFlight = Flight
                 .builder()
                 .flightNumber(id)
-                .destinationFrom(newEntity.getDestinationFrom())
-                .destinationTo(newEntity.getDestinationTo())
-                .connectionFlights(newEntity.getConnectionFlights())
-                .airline(newEntity.getAirline())
+                .destinationFrom(dtoToEntity(newEntity.getDestinationFrom()))
+                .destinationTo(dtoToEntity(newEntity.getDestinationTo()))
+                .connectionFlights(newEntity.getConnectionFlights().stream().map(DtoHelper::dtoToEntity).toList())
+                .airline(dtoToEntity(newEntity.getAirline()))
                 .build();
         flightRepository.saveAndFlush(newFlight);
         log.info("flight with id {} has been updated", newFlight.getFlightNumber());

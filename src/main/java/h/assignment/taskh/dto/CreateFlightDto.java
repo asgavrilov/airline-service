@@ -10,19 +10,18 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class FlightDto implements Serializable {
+public class CreateFlightDto implements Serializable {
     @NotEmpty
     private String flightNumber;
     @NotNull
-    private DestinationDto destinationFrom;
+    private String destinationFrom;
     @NotNull
-    private DestinationDto destinationTo;
-    private List<FlightDto> connectionFlights;
+    private String destinationTo;
+    private List<String> connectionFlights;
     @NotNull
-    private AirlineDto airline;
+    private String airlineId;
 }

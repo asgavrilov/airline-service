@@ -1,6 +1,5 @@
 package h.assignment.taskh.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -31,7 +30,6 @@ public class Flight {
 
     @ManyToOne()
     @JoinColumn(name = "airline_id")
-    @JsonBackReference
     private Airline airline;
 
 }
